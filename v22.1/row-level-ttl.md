@@ -36,6 +36,10 @@ The process above is conceptually similar to the process described by [Batch del
 
 Once rows are expired (that is, are older than the specified [TTL interval](#param-ttl-expire-after)), they are eligible to be deleted. However, eligible rows may not be deleted right away. Instead, they are scheduled for deletion using a [background job](#view-scheduled-ttl-jobs) that is run at the interval defined by the `ttl_job_cron` [storage parameter](#ttl-storage-parameters).
 
+## Required privileges
+
+XXX: WRITE ME
+
 ## Syntax overview
 
 TTLs are defined on a per-table basis using SQL statements. The syntax for creating a table with an automatically managed TTL extends the [`storage_parameter` syntax](sql-grammar.html#opt_with_storage_parameter_list). For example, the SQL statement
@@ -79,7 +83,7 @@ SHOW CREATE TABLE ttl_test;
 
 ## TTL storage parameters
 
-The settings that control the behavior of Row-Level TTL are provided using [storage parameters](sql-grammar.html#opt_with_storage_parameter_list). These parameters can be set during table creation using [`CREATE TABLE`](#create-a-table-with-row-level-ttl), added to an existing table using the [`ALTER TABLE`](#add-row-level-ttl-to-an-existing-table) statement, or [reset to default values](#reset-a-storage-parameter-to-its-default-value).
+The settings that control the behavior of Row-Level TTL are provided using [storage parameters](sql-grammar.html#opt_with_storage_parameter_list). These parameters can be set during table creation using [`CREATE TABLE`](#create-a-table-with-row-level-ttl), added to an existing table using the [`ALTER TABLE`](#add-or-update-the-row-level-ttl-for-an-existing-table) statement, or [reset to default values](#reset-a-storage-parameter-to-its-default-value).
 
 | Description                                              | Option                                                                                                                                                                       | Associated cluster setting          |
 |----------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------|
@@ -162,9 +166,9 @@ SELECT *, crdb_internal_expiration FROM events;
 (3 rows)
 ~~~
 
-### Add Row-Level TTL to an existing table
+### Add or update the row-level TTL for an existing table
 
-To add a TTL to an existing table, use the SQL syntax shown below.
+To add or change the row-level TTL expiration for an existing table, use the SQL syntax shown below.
 
 {% include_cached copy-clipboard.html %}
 ~~~ sql
@@ -175,8 +179,8 @@ ALTER TABLE events SET (ttl_expire_after = '1 year');
 ALTER TABLE
 ~~~
 
-{{site.data.alerts.callout_info}}
-Adding Row-Level TTL to an existing table will result in a [schema change](online-schema-changes.html) that sets the [`crdb_internal_expiration` column](#crdb-internal-expiration) for all rows. Depending on table size, this could be an expensive operation.
+{{site.data.alerts.callout_danger}}
+Adding or changing the Row-Level TTL settings for an existing table will result in a [schema change](online-schema-changes.html) that sets the [`crdb_internal_expiration` column](#crdb-internal-expiration) for all rows. Depending on table size, this could be an expensive operation.
 {{site.data.alerts.end}}
 
 ### View scheduled TTL jobs
@@ -377,7 +381,7 @@ SELECT *, crdb_internal_expiration from events WHERE id = ' a9404386-c4da-415f-b
 ~~~
 
 {{site.data.alerts.callout_danger}}
-If a row with a row-level TTL override as described in this section is subsequently [updated](update.html), the overridden value of `crdb_internal_expiration` and will be replaced with `now()` + the table-wide TTL that was [set during table creation](#create-a-table-with-row-level-ttl) or [previously added to the table](#add-row-level-ttl-to-an-existing-table).
+If a row with a row-level TTL override as described in this section is subsequently [updated](update.html), the overridden value of `crdb_internal_expiration` and will be replaced with `now()` + the table-wide TTL that was [set during table creation](#create-a-table-with-row-level-ttl) or [previously added to the table](#add-or-update-the-row-level-ttl-for-an-existing-table).
 {{site.data.alerts.end}}
 
 ### Disable TTL jobs for the whole cluster
