@@ -12,7 +12,7 @@ See:
 
 - [Transport Layer Security (TLS) and Public Key Infrastructure (PKI)](security-reference/transport-layer-security.html)
 - [Using the CockroachDB CLI to provision a development cluster](manage-certs-cli.html).
-- [Using Google Cloud Platform to manage PKI certificates](manage-certs-gcloud.html).
+- [Using Google Cloud Platform Certificate Authority Service to manage PKI certificates](manage-certs-gcloud.html).
 
 
 {{site.data.alerts.callout_info}}
